@@ -6,11 +6,11 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Products from "@/components/Products";
+import MissionTimeline from "@/components/MissionTimeline";
 import Technology from "@/components/Technology";
 import Clients from "@/components/Clients";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
-import CustomCursor from "@/components/CustomCursor";
 import ScrollSlideSection from "@/components/ScrollSlideSection";
 
 export default function Home() {
@@ -39,31 +39,37 @@ export default function Home() {
   const toggleTheme = () =>
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
 
-  if (loading) return <Preloader />;
-
   return (
-    <main className="relative overflow-hidden" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
-      <CustomCursor />
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <Hero theme={theme} />
-      <ScrollSlideSection>
-        <About />
-      </ScrollSlideSection>
-      <ScrollSlideSection>
-        <Products />
-      </ScrollSlideSection>
-      <ScrollSlideSection>
-        <Technology />
-      </ScrollSlideSection>
-      <ScrollSlideSection>
-        <Clients />
-      </ScrollSlideSection>
-      <ScrollSlideSection>
-        <Contact />
-      </ScrollSlideSection>
-      <ScrollSlideSection offset={84}>
-        <Footer />
-      </ScrollSlideSection>
-    </main>
+    <>
+      {loading ? (
+        <Preloader />
+      ) : (
+        <main className="relative overflow-hidden" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
+          <Navbar theme={theme} toggleTheme={toggleTheme} />
+          <Hero theme={theme} />
+          <ScrollSlideSection>
+            <About />
+          </ScrollSlideSection>
+          <ScrollSlideSection>
+            <Products />
+          </ScrollSlideSection>
+          <ScrollSlideSection>
+            <MissionTimeline />
+          </ScrollSlideSection>
+          <ScrollSlideSection>
+            <Technology />
+          </ScrollSlideSection>
+          <ScrollSlideSection>
+            <Clients />
+          </ScrollSlideSection>
+          <ScrollSlideSection>
+            <Contact />
+          </ScrollSlideSection>
+          <ScrollSlideSection offset={84}>
+            <Footer />
+          </ScrollSlideSection>
+        </main>
+      )}
+    </>
   );
 }

@@ -30,8 +30,22 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap"
           rel="stylesheet"
+        />
+        <link
+          rel="preload"
+          href="/models/drone_scout.glb"
+          as="fetch"
+          type="model/gltf-binary"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/inside_drone.glb"
+          as="fetch"
+          type="model/gltf-binary"
+          crossOrigin="anonymous"
         />
         <script
           dangerouslySetInnerHTML={{
