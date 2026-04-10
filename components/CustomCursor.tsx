@@ -15,11 +15,19 @@ export default function CustomCursor() {
 
     updateEnabled();
     window.addEventListener("resize", updateEnabled, { passive: true });
-    mediaQuery.addEventListener("change", updateEnabled);
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateEnabled);
+    } else {
+      mediaQuery.addListener(updateEnabled);
+    }
 
     return () => {
       window.removeEventListener("resize", updateEnabled);
-      mediaQuery.removeEventListener("change", updateEnabled);
+      if (typeof mediaQuery.removeEventListener === "function") {
+        mediaQuery.removeEventListener("change", updateEnabled);
+      } else {
+        mediaQuery.removeListener(updateEnabled);
+      }
     };
   }, []);
 
@@ -32,10 +40,15 @@ export default function CustomCursor() {
 
     let animationFrame = 0;
     let hoverActive = false;
+    let hasMoved = false;
     const target = { x: -100, y: -100 };
     const current = { x: -100, y: -100 };
 
     const render = () => {
+      if (!hasMoved) {
+        animationFrame = window.requestAnimationFrame(render);
+        return;
+      }
       current.x += (target.x - current.x) * 0.2;
       current.y += (target.y - current.y) * 0.2;
 
@@ -45,12 +58,15 @@ export default function CustomCursor() {
       animationFrame = window.requestAnimationFrame(render);
     };
 
-    const handleMove = (event: MouseEvent) => {
+    const handleMove = (event: PointerEvent) => {
       target.x = event.clientX;
       target.y = event.clientY;
-    };
+      if (!hasMoved) {
+        current.x = event.clientX;
+        current.y = event.clientY;
+        hasMoved = true;
+      }
 
-    const handlePointerOver = (event: Event) => {
       const targetElement = event.target as Element | null;
       hoverActive = Boolean(targetElement?.closest("a, button, [data-hover]"));
     };
@@ -60,16 +76,12 @@ export default function CustomCursor() {
     };
 
     animationFrame = window.requestAnimationFrame(render);
-    document.addEventListener("mousemove", handleMove, { passive: true });
-    document.addEventListener("mouseover", handlePointerOver, { passive: true });
-    document.addEventListener("mouseout", handlePointerOver, { passive: true });
+    document.addEventListener("pointermove", handleMove, { passive: true });
     window.addEventListener("blur", handlePointerLeave);
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
-      document.removeEventListener("mousemove", handleMove);
-      document.removeEventListener("mouseover", handlePointerOver);
-      document.removeEventListener("mouseout", handlePointerOver);
+      document.removeEventListener("pointermove", handleMove);
       window.removeEventListener("blur", handlePointerLeave);
     };
   }, [enabled]);

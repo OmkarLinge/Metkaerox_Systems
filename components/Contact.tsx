@@ -100,7 +100,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="relative py-14 lg:py-20 overflow-hidden"
+      className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
       style={{ backgroundColor: "var(--bg)" }}
       ref={ref}
     >
@@ -331,7 +331,7 @@ export default function Contact() {
                 {["LinkedIn", "Twitter", "YouTube", "Instagram"].map((platform) => (
                   <button
                     key={platform}
-                    className="px-3 py-2 rounded-lg text-xs font-bold transition-all duration-300 hover:scale-105"
+                    className="px-3 py-2 rounded-lg text-xs font-bold transition-all duration-300 btn-interaction"
                     style={{
                       fontFamily: "'Share Tech Mono', monospace",
                       fontSize: "0.55rem",
@@ -610,7 +610,7 @@ export default function Contact() {
                   <button
                     type="submit"
                     disabled={formState === "sending"}
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-lg font-bold transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-3 py-4 rounded-lg font-bold transition-all duration-300 btn-interaction"
                     style={{
                       fontFamily: "'Orbitron', sans-serif",
                       fontSize: "0.75rem",
@@ -622,16 +622,6 @@ export default function Contact() {
                       color: formState === "sending" ? "var(--text-muted)" : "var(--button-contrast)",
                       cursor: formState === "sending" ? "not-allowed" : "pointer",
                       boxShadow: formState !== "sending" ? "0 0 30px rgba(var(--accent-rgb),0.2)" : "none",
-                    }}
-                    onMouseEnter={(e) => {
-                      if (formState !== "sending") {
-                        (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)";
-                        (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 40px rgba(var(--accent-rgb),0.4)";
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                      (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 0 30px rgba(var(--accent-rgb),0.2)";
                     }}
                   >
                     {formState === "sending" ? (
