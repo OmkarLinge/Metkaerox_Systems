@@ -1,12 +1,12 @@
 "use client";
 
-import Script from "next/script";
-import type { CSSProperties, ElementType } from "react";
 import { useEffect, useRef, useState } from "react";
 import { Target, Eye, Award, CheckCircle } from "lucide-react";
 import { companyInfo } from "@/data/company";
+import dynamic from "next/dynamic";
 
-const ModelViewer = "model-viewer" as unknown as ElementType;
+const DroneModel = dynamic(() => import("./DroneModel"), { ssr: false });
+
 
 function useInView(threshold = 0.2) {
   const ref = useRef<HTMLDivElement>(null);
@@ -69,13 +69,9 @@ export default function About() {
 
   return (
     <>
-      <Script
-        type="module"
-        src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"
-      />
       <section
         id="about"
-        className="relative py-14 lg:py-20 overflow-hidden"
+        className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
         style={{ backgroundColor: "var(--bg)" }}
         ref={sectionRef}
       >
@@ -119,7 +115,10 @@ export default function About() {
               letterSpacing: "-0.02em",
             }}
           >
-            ABOUT <span style={{ color: "var(--accent)" }}>METKAEROX SYSTEMS</span>
+            <span style={{ display: "block" }}>ABOUT</span>
+            <span style={{ color: "var(--accent)", display: "block" }}>
+              METKAEROX SYSTEMS
+            </span>
           </h2>
           <div
             className="mx-auto mt-4"
@@ -173,31 +172,30 @@ export default function About() {
                     animation: "hoverDrift 4.8s ease-in-out infinite",
                   }}
                 >
-                  <ModelViewer
-                    src="/inside_drone.glb"
-                    alt="Inside drone model"
-                    camera-controls
-                    auto-rotate
-                    auto-rotate-delay="0"
-                    rotation-per-second="20deg"
-                    camera-orbit="22deg 76deg 82%"
-                    min-camera-orbit="auto 62deg 72%"
-                    max-camera-orbit="auto 92deg 118%"
-                    field-of-view="22deg"
-                    interaction-prompt="none"
-                    shadow-intensity="1"
-                    exposure="1.12"
-                    environment-image="neutral"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "transparent",
-                    transform: "scale(1.51)",
-                    transformOrigin: "center center",
-                    "--progress-bar-color": "var(--accent)",
-                    "--poster-color": "transparent",
-                  } as CSSProperties}
-                />
+                  <DroneModel
+                    modelPath="/inside_drone.glb"
+                    scale={8.4}
+                    position={[0, -0.08, 0]}
+                    rotationSpeed={0.0015}
+                    floatSpeed={0.9}
+                    rotationIntensity={0.2}
+                    floatIntensity={0.25}
+                    cameraPosition={[0, 0.02, 1.95]}
+                    fov={36}
+                    enableControls
+                    enableZoom
+                    minDistance={0.9}
+                    maxDistance={3.6}
+                    zoomSpeed={1.1}
+                    controlsTarget={[0, 0, 0]}
+                    minPolarAngle={Math.PI / 3}
+                    maxPolarAngle={(2 * Math.PI) / 3}
+                    enablePropellerSpin
+                    propellerSpeed={0.6}
+                    propellerAxis="z"
+                    ambientIntensity={0.45}
+                    keyLightIntensity={0.8}
+                  />
                 </div>
               </div>
 
