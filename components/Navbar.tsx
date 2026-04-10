@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Menu, X, Sun, Moon, Zap } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, scrollToSection } from "@/lib/utils";
 
 interface NavbarProps {
   theme: "dark" | "light";
@@ -31,6 +31,20 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => setMounted(true));
     return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    const updateNavOffset = () => {
+      const nav = navRef.current;
+      if (!nav) return;
+      const rect = nav.getBoundingClientRect();
+      const offset = Math.round(rect.bottom + 8);
+      document.documentElement.style.setProperty("--nav-offset", `${offset}px`);
+    };
+
+    updateNavOffset();
+    window.addEventListener("resize", updateNavOffset, { passive: true });
+    return () => window.removeEventListener("resize", updateNavOffset);
   }, []);
 
   useEffect(() => {
@@ -76,40 +90,41 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     };
   }, []);
 
-  const getScrollOffset = () => {
-    const navHeight = navRef.current?.getBoundingClientRect().height ?? 56;
-    return navHeight + 28;
-  };
-
   const scrollTo = (href: string) => {
     setMobileOpen(false);
     const id = href.replace("#", "");
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    const offset = id === "hero" ? 20 : getScrollOffset();
-    const top = window.scrollY + el.getBoundingClientRect().top - offset;
-
     activeSectionRef.current = id;
     setActiveSection(id);
-    window.scrollTo({ top: Math.max(top, 0), behavior: "smooth" });
+    scrollToSection(id, id === "hero" ? 20 : 104);
   };
 
   const navBackground = isDark
     ? scrolled
-      ? "rgba(16, 26, 36, 0.84)"
-      : "rgba(16, 26, 36, 0.62)"
+      ? "rgba(12, 18, 26, 0.78)"
+      : "rgba(12, 18, 26, 0.56)"
     : scrolled
-      ? "rgba(244,239,227,0.82)"
-      : "rgba(244,239,227,0.62)";
-  const navBorder = isDark ? "1px solid rgba(var(--accent-rgb),0.14)" : "1px solid rgba(var(--accent-rgb),0.1)";
+      ? "rgba(245, 247, 250, 0.82)"
+      : "rgba(245, 247, 250, 0.64)";
+  const navBorder = isDark
+    ? scrolled
+      ? "1px solid rgba(var(--accent-rgb),0.22)"
+      : "1px solid rgba(var(--accent-rgb),0.14)"
+    : scrolled
+      ? "1px solid rgba(var(--accent-rgb),0.18)"
+      : "1px solid rgba(var(--accent-rgb),0.12)";
   const navShadow = isDark
     ? scrolled
-      ? "0 16px 40px rgba(3,8,14,0.28), 0 0 24px rgba(var(--accent-rgb),0.08)"
+      ? "0 18px 44px rgba(3,8,14,0.34), 0 0 30px rgba(var(--accent-rgb),0.12)"
       : "0 10px 24px rgba(3,8,14,0.16)"
     : scrolled
-      ? "0 12px 28px rgba(37,35,24,0.08)"
+      ? "0 12px 28px rgba(37,35,24,0.1)"
       : "0 8px 20px rgba(37,35,24,0.04)";
+  const navBackdrop = scrolled ? "blur(18px)" : "blur(10px)";
+  const navHighlight = scrolled
+    ? isDark
+      ? "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%)"
+      : "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 60%)"
+    : "none";
   const logoText = isDark ? "var(--text)" : "var(--text)";
   const inactiveText = isDark ? "rgba(238,246,255,0.66)" : "var(--text-muted)";
   const toggleBorder = isDark ? "1px solid rgba(var(--accent-rgb),0.18)" : "1px solid rgba(var(--accent-rgb),0.12)";
@@ -127,23 +142,25 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       <nav
         ref={navRef}
         className={cn(
-          "fixed top-3 left-1/2 -translate-x-1/2 z-nav transition-all duration-500 w-[calc(100%-1.5rem)] max-w-6xl rounded-[24px]"
+          "fixed top-3 left-1/2 -translate-x-1/2 z-nav transition-all duration-500 w-[calc(100%-1.5rem)] max-w-[1380px] rounded-[24px]"
         )}
         style={{
           backgroundColor: navBackground,
+          backgroundImage: navHighlight,
           border: navBorder,
-          backdropFilter: "blur(14px)",
+          backdropFilter: navBackdrop,
+          WebkitBackdropFilter: navBackdrop,
           boxShadow: navShadow,
           opacity: mounted ? 1 : 0,
           transform: `translateX(-50%) translateY(${mounted ? "0" : "-12px"})`,
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full px-3 sm:px-5 lg:px-6">
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <button
               onClick={() => scrollTo("#hero")}
-              className="flex items-center gap-2 group"
+              className="flex items-center gap-2 group btn-interaction"
             >
               <div
                 className="relative"
@@ -179,7 +196,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             </button>
 
             {/* Desktop nav links */}
-            <div className="hidden md:flex items-center gap-0.5">
+            <div className="hidden md:flex items-center gap-0">
               {navLinks.map((link) => {
                 const id = link.href.replace("#", "");
                 const isActive = activeSection === id;
@@ -187,7 +204,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   <button
                     key={link.href}
                     onClick={() => scrollTo(link.href)}
-                    className="relative px-3 py-2 group"
+                    className="relative px-2.5 py-2 group nav-link"
                     style={{
                       fontFamily: "'Rajdhani', sans-serif",
                       fontSize: "0.82rem",
@@ -198,14 +215,6 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                       transition: "color 0.3s ease",
                     }}
                   >
-                    <span
-                      className="absolute inset-0 rounded-xl transition-all duration-300"
-                      style={{
-                        backgroundColor: isActive ? "rgba(var(--accent-rgb),0.09)" : "rgba(var(--accent-rgb),0.04)",
-                        opacity: isActive ? 1 : 0,
-                        transform: isActive ? "scale(1)" : "scale(0.86)",
-                      }}
-                    />
                     <span className="relative z-10 transition-colors duration-300" style={{ color: isActive ? "var(--accent)" : undefined }}>
                       {link.label}
                     </span>
@@ -225,7 +234,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               {/* Theme toggle */}
               <button
                 onClick={toggleTheme}
-                className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 hover:-translate-y-0.5"
+                className="relative w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 btn-interaction"
                 style={{
                   border: toggleBorder,
                   backgroundColor: toggleBackground,
@@ -239,7 +248,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               {/* CTA */}
               <button
                 onClick={() => scrollTo("#contact")}
-                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 hover:-translate-y-0.5"
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 btn-interaction"
                 style={{
                   fontFamily: "'Orbitron', sans-serif",
                   fontSize: "0.62rem",
@@ -255,7 +264,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="md:hidden w-10 h-10 flex items-center justify-center"
+                className="md:hidden w-10 h-10 flex items-center justify-center btn-interaction"
                 style={{ color: logoText }}
               >
                 {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -278,7 +287,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               <button
                 key={link.href}
                 onClick={() => scrollTo(link.href)}
-                className="w-full text-left px-4 py-3 rounded transition-colors duration-200"
+                className="w-full text-left px-4 py-3 rounded transition-colors duration-200 btn-interaction"
                 style={{
                   fontFamily: "'Rajdhani', sans-serif",
                   fontWeight: 600,
@@ -293,7 +302,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             ))}
             <button
               onClick={() => scrollTo("#contact")}
-              className="mt-2 w-full py-3 rounded font-bold text-sm"
+              className="mt-2 w-full py-3 rounded font-bold text-sm btn-interaction"
               style={{
                 fontFamily: "'Orbitron', sans-serif",
                 fontSize: "0.7rem",

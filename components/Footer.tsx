@@ -63,7 +63,6 @@ export default function Footer() {
             linear-gradient(rgba(var(--accent-rgb), 0.02) 1px, transparent 1px),
             linear-gradient(90deg, rgba(var(--accent-rgb), 0.02) 1px, transparent 1px)
           `,
-          backgroundSize: "50px 50px",
         }}
       />
 
@@ -105,6 +104,7 @@ export default function Footer() {
                   SYSTEMS
                 </span>
               </div>
+
             </div>
 
             <p
