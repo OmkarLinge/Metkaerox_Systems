@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html><body>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
+
+const loader = new GLTFLoader();
+loader.load('http://localhost:3000/models/drone-2.glb', (gltf) => {
+    let out = [];
+    
+    // We want to sample the animation "Scene" at 10% increments to find the unfolded state
+    const clip = gltf.animations[0];
+    const mixer = new THREE.AnimationMixer(gltf.scene);
+    const action = mixer.clipAction(clip);
+    action.play();
+    
+    for(let i=0; i<=10; i++) {
+        let fraction = i/10;
+        mixer.setTime(clip.duration * fraction);
+        
+        let state = {};
+        gltf.scene.traverse((child) => {
+            if(child.name && child.name.toLowerCase().includes('propeller')) {
+                state[child.name] = child.position.x.toFixed(2);
+            }
+        });
+        out.push({ time: fraction, state });
+    }
+    document.body.innerHTML = "<pre id='res'>" + JSON.stringify(out, null, 2) + "</pre>";
+});
+</script>
+</body></html>
