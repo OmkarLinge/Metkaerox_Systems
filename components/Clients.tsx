@@ -75,7 +75,7 @@ export default function Clients() {
   return (
     <section
       id="clients"
-      className="relative py-14 lg:py-20 overflow-hidden"
+      className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
       style={{ backgroundColor: "var(--bg-secondary)" }}
       ref={ref}
     >

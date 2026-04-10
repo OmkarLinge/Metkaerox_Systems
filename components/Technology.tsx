@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { technologies } from "@/data/company";
 import { scrollToSection } from "@/lib/utils";
 
@@ -23,6 +23,13 @@ type Tech = typeof technologies[0];
 function TechCard({ tech, index, inView }: { tech: Tech; index: number; inView: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const [hovered, setHovered] = useState(false);
+
+  const toggleButtonStyle: CSSProperties & Record<"--btn-rotate", string> = {
+    border: "1px solid rgba(var(--accent-rgb),0.12)",
+    color: "var(--accent)",
+    backgroundColor: "rgba(var(--accent-rgb),0.04)",
+    "--btn-rotate": expanded ? "45deg" : "0deg",
+  };
 
   return (
     <div
@@ -116,14 +123,8 @@ function TechCard({ tech, index, inView }: { tech: Tech; index: number; inView: 
 
             {/* Expand toggle */}
             <button
-              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all"
-              style={{
-                border: "1px solid rgba(var(--accent-rgb),0.12)",
-                color: "var(--accent)",
-                backgroundColor: "rgba(var(--accent-rgb),0.04)",
-                transform: expanded ? "rotate(45deg)" : "rotate(0deg)",
-                transition: "transform 0.3s ease",
-              }}
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all btn-interaction"
+              style={toggleButtonStyle}
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
                 <rect x="5" y="0" width="2" height="12" />
@@ -211,7 +212,7 @@ export default function Technology() {
   return (
     <section
       id="technology"
-      className="relative py-14 lg:py-20 overflow-hidden"
+      className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
       style={{ backgroundColor: "var(--bg)" }}
       ref={ref}
     >
@@ -337,7 +338,7 @@ export default function Technology() {
               </p>
               <button
                 onClick={() => scrollToSection("contact", 104)}
-                className="px-8 py-4 rounded font-bold transition-all duration-300 hover:scale-105"
+                className="px-8 py-4 rounded font-bold transition-all duration-300 btn-interaction"
                 style={{
                   fontFamily: "'Orbitron', sans-serif",
                   fontSize: "0.7rem",
