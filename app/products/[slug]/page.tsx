@@ -27,9 +27,9 @@ function ProductVisual({
       className="relative rounded-3xl flex items-center justify-center overflow-hidden"
       style={{
         minHeight: size,
-        background: `radial-gradient(circle at 50% 40%, ${color}18 0%, rgba(10,15,28,0.18) 58%, rgba(10,15,28,0.12) 100%)`,
+        background: `radial-gradient(circle at 50% 40%, ${color}18 0%, rgba(var(--highlight-rgb),0.1) 58%, rgba(var(--highlight-rgb),0.05) 100%)`,
         border: `1px solid ${color}33`,
-        boxShadow: `0 30px 80px ${color}18`,
+        boxShadow: `0 30px 80px rgba(var(--shadow-rgb),0.18)`,
       }}
     >
       <div
@@ -59,7 +59,7 @@ function ProductVisual({
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "linear-gradient(180deg, rgba(6,11,22,0.04) 0%, rgba(6,11,22,0.16) 100%)",
+          background: "linear-gradient(180deg, rgba(var(--highlight-rgb),0.02) 0%, rgba(var(--highlight-rgb),0.12) 100%)",
         }}
       />
     </div>
@@ -129,7 +129,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         className="sticky top-0 z-20"
         style={{
           borderBottom: "1px solid var(--border)",
-          backgroundColor: "rgba(10,15,28,0.88)",
+          backgroundColor: "var(--panel)",
           backdropFilter: "blur(16px)",
         }}
       >
@@ -280,7 +280,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   fontFamily: "'Rajdhani', sans-serif",
                   fontSize: "1.08rem",
                   lineHeight: 1.85,
-                  color: "rgba(229,231,235,0.78)",
+                  color: "var(--text-muted)",
                   maxWidth: "680px",
                 }}
               >
@@ -338,7 +338,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div
             className="rounded-3xl p-6 lg:p-8"
             style={{
-              backgroundColor: "rgba(17,24,39,0.84)",
+              backgroundColor: "var(--card-bg)",
               border: `1px solid ${product.color}24`,
             }}
           >
@@ -398,7 +398,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div
               className="rounded-3xl p-6 lg:p-8"
               style={{
-                backgroundColor: "rgba(17,24,39,0.84)",
+                backgroundColor: "var(--card-bg)",
                 border: `1px solid ${product.color}24`,
               }}
             >
@@ -488,7 +488,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div
           className="max-w-7xl mx-auto mx-4 sm:mx-6 lg:mx-8 rounded-[32px] p-8 lg:p-10"
           style={{
-            background: `linear-gradient(135deg, ${product.color}16, rgba(17,24,39,0.88))`,
+            background: `linear-gradient(135deg, ${product.color}16, rgba(var(--highlight-rgb),0.08))`,
             border: `1px solid ${product.color}28`,
           }}
         >
@@ -519,7 +519,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 style={{
                   fontFamily: "'Rajdhani', sans-serif",
                   fontSize: "1rem",
-                  color: "rgba(229,231,235,0.72)",
+                  color: "var(--text-muted)",
                   maxWidth: "620px",
                 }}
               >
@@ -560,12 +560,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </section>
 
-      <style>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
-      `}</style>
+      `,
+        }}
+      />
     </main>
   );
 }
