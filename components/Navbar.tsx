@@ -1,29 +1,39 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Menu, X, Sun, Moon, Zap } from "lucide-react";
+import { Menu, X, Sun, Moon, Zap, ChevronDown } from "lucide-react";
 import { cn, scrollToSection } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-interface NavbarProps {
-  theme: "dark" | "light";
-  toggleTheme: () => void;
-}
+import { useTheme } from "@/components/ClientLayout";
 
 const navLinks = [
   { label: "Home", href: "#hero" },
   { label: "About", href: "#about" },
   { label: "Products", href: "#products" },
-  { label: "Technology", href: "#technology" },
-  { label: "Clients", href: "#clients" },
+  { label: "Blog", href: "/blog" },
+  { 
+    label: "Gallery", 
+    dropdown: [
+      { label: "Image Gallery", href: "/gallery/images" },
+      { label: "Video Gallery", href: "/gallery/videos" },
+    ]
+  },
+  { label: "Careers", href: "/careers" },
   { label: "Contact", href: "#contact" },
 ];
 
-export default function Navbar({ theme, toggleTheme }: NavbarProps) {
+export default function Navbar() {
+  const { theme, toggleTheme } = useTheme();
   const isDark = theme === "dark";
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const scrolledRef = useRef(false);
   const activeSectionRef = useRef("hero");
@@ -48,6 +58,8 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   }, []);
 
   useEffect(() => {
+    if (pathname !== "/") return;
+
     let animationFrame = 0;
 
     const handleScroll = () => {
@@ -60,7 +72,10 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           setScrolled(nextScrolled);
         }
 
-        const sections = navLinks.map((link) => link.href.replace("#", ""));
+        const sections = navLinks
+          .filter(link => link.href && link.href.startsWith("#"))
+          .map((link) => link.href!.replace("#", ""));
+        
         let nextActiveSection = activeSectionRef.current;
 
         for (const section of [...sections].reverse()) {
@@ -88,10 +103,14 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         window.cancelAnimationFrame(animationFrame);
       }
     };
-  }, []);
+  }, [pathname]);
 
   const scrollTo = (href: string) => {
     setMobileOpen(false);
+    if (pathname !== "/") {
+      window.location.href = "/" + href;
+      return;
+    }
     const id = href.replace("#", "");
     activeSectionRef.current = id;
     setActiveSection(id);
@@ -103,8 +122,8 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       ? "rgba(12, 18, 26, 0.78)"
       : "rgba(12, 18, 26, 0.56)"
     : scrolled
-      ? "rgba(245, 247, 250, 0.82)"
-      : "rgba(245, 247, 250, 0.64)";
+      ? "rgba(246, 249, 243, 0.9)"
+      : "rgba(246, 249, 243, 0.82)";
   const navBorder = isDark
     ? scrolled
       ? "1px solid rgba(var(--accent-rgb),0.22)"
@@ -117,24 +136,30 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       ? "0 18px 44px rgba(3,8,14,0.34), 0 0 30px rgba(var(--accent-rgb),0.12)"
       : "0 10px 24px rgba(3,8,14,0.16)"
     : scrolled
-      ? "0 12px 28px rgba(37,35,24,0.1)"
-      : "0 8px 20px rgba(37,35,24,0.04)";
+      ? "0 18px 40px rgba(36,55,72,0.12), 0 8px 18px rgba(95,119,86,0.08)"
+      : "0 12px 28px rgba(36,55,72,0.08)";
   const navBackdrop = scrolled ? "blur(18px)" : "blur(10px)";
   const navHighlight = scrolled
     ? isDark
       ? "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0) 60%)"
-      : "linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0) 60%)"
+      : "linear-gradient(135deg, rgba(255,255,255,0.42), rgba(var(--accent-rgb),0.08) 36%, rgba(var(--highlight-rgb),0) 72%)"
     : "none";
-  const logoText = isDark ? "var(--text)" : "var(--text)";
-  const inactiveText = isDark ? "rgba(238,246,255,0.66)" : "var(--text-muted)";
+  const logoText = isDark 
+    ? "var(--text)" 
+    : "var(--highlight)";
+  const inactiveText = isDark 
+    ? "rgba(238,246,255,0.66)" 
+    : "var(--text-muted)";
   const toggleBorder = isDark ? "1px solid rgba(var(--accent-rgb),0.18)" : "1px solid rgba(var(--accent-rgb),0.12)";
-  const toggleBackground = isDark ? "rgba(24,37,52,0.72)" : "rgba(255,255,255,0.42)";
-  const toggleColor = isDark ? "var(--text)" : "var(--text)";
+  const toggleBackground = isDark ? "rgba(24,37,52,0.72)" : "rgba(255,255,255,0.62)";
+  const toggleColor = isDark 
+    ? "var(--text)" 
+    : "var(--highlight)";
   const ctaBackground = isDark
     ? "linear-gradient(135deg, var(--accent), var(--highlight))"
     : "linear-gradient(135deg, var(--accent), var(--highlight))";
   const ctaShadow = isDark ? "0 10px 26px rgba(var(--accent-rgb),0.18)" : "0 8px 18px rgba(var(--accent-rgb),0.18)";
-  const mobileBackground = isDark ? "rgba(16,26,36,0.96)" : "rgba(243,238,225,0.97)";
+  const mobileBackground = isDark ? "rgba(16,26,36,0.96)" : "rgba(244,248,240,0.98)";
   const mobileBorder = isDark ? "1px solid rgba(var(--accent-rgb),0.1)" : "1px solid rgba(var(--accent-rgb),0.08)";
 
   return (
@@ -160,7 +185,8 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             {/* Logo */}
             <button
               onClick={() => scrollTo("#hero")}
-              className="flex items-center gap-2 group btn-interaction"
+              className="flex items-center gap-2 group"
+              style={{ boxShadow: "none", outline: "none", border: "none", background: "none" }}
             >
               <div
                 className="relative"
@@ -198,12 +224,95 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             {/* Desktop nav links */}
             <div className="hidden md:flex items-center gap-0">
               {navLinks.map((link) => {
-                const id = link.href.replace("#", "");
-                const isActive = activeSection === id;
+                if (link.dropdown) {
+                  return (
+                    <div
+                      key={link.label}
+                      className="relative group/dropdown"
+                      onMouseEnter={() => setActiveDropdown(link.label)}
+                      onMouseLeave={() => setActiveDropdown(null)}
+                    >
+                      <button
+                        className="relative px-3 py-2 flex items-center gap-1 group nav-link"
+                        style={{
+                          fontFamily: "'Rajdhani', sans-serif",
+                          fontSize: "0.82rem",
+                          fontWeight: 600,
+                          letterSpacing: "0.07em",
+                          color: activeDropdown === link.label ? "var(--accent)" : inactiveText,
+                          textTransform: "uppercase",
+                          transition: "color 0.3s ease",
+                        }}
+                      >
+                        <span className="relative z-10">{link.label}</span>
+                        <ChevronDown size={14} className={cn("transition-transform duration-300", activeDropdown === link.label && "rotate-180")} />
+                      </button>
+
+                      <AnimatePresence>
+                        {activeDropdown === link.label && (
+                          <motion.div
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="absolute top-full left-0 mt-1 w-48 rounded-xl overflow-hidden border border-accent shadow-xl backdrop-blur-xl"
+                            style={{ backgroundColor: navBackground }}
+                          >
+                            <div className="py-1">
+                              {link.dropdown.map((item) => (
+                                <Link
+                                  key={item.href}
+                                  href={item.href}
+                                  className="block px-4 py-2.5 text-[0.75rem] font-bold tracking-wider hover:bg-accent hover:text-white transition-colors duration-200"
+                                  style={{
+                                    fontFamily: "'Orbitron', sans-serif",
+                                    color: logoText,
+                                    textTransform: "uppercase",
+                                  }}
+                                >
+                                  {item.label}
+                                </Link>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
+
+                const href = link.href!;
+                const isHash = href.startsWith("#");
+
+                if (!isHash) {
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      className="relative px-2.5 py-2 group nav-link"
+                      style={{
+                        fontFamily: "'Rajdhani', sans-serif",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                        letterSpacing: "0.07em",
+                        color: pathname === href ? "var(--accent)" : inactiveText,
+                        textTransform: "uppercase",
+                        transition: "color 0.3s ease",
+                      }}
+                    >
+                      <span className="relative z-10 transition-colors duration-300" style={{ color: pathname === href ? "var(--accent)" : undefined }}>
+                        {link.label}
+                      </span>
+                    </Link>
+                  );
+                }
+
+                const id = href.replace("#", "");
+                const isActive = pathname === "/" && activeSection === id;
                 return (
                   <button
-                    key={link.href}
-                    onClick={() => scrollTo(link.href)}
+                    key={href}
+                    onClick={() => scrollTo(href)}
                     className="relative px-2.5 py-2 group nav-link"
                     style={{
                       fontFamily: "'Rajdhani', sans-serif",
@@ -277,28 +386,78 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         <div
           className="md:hidden overflow-hidden transition-all duration-300"
           style={{
-            maxHeight: mobileOpen ? "400px" : "0",
+            maxHeight: mobileOpen ? "500px" : "0",
             backgroundColor: mobileBackground,
             borderTop: mobileOpen ? mobileBorder : "none",
           }}
         >
           <div className="px-4 py-4 flex flex-col gap-1">
             {navLinks.map((link) => (
-              <button
-                key={link.href}
-                onClick={() => scrollTo(link.href)}
-                className="w-full text-left px-4 py-3 rounded transition-colors duration-200 btn-interaction"
-                style={{
-                  fontFamily: "'Rajdhani', sans-serif",
-                  fontWeight: 600,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  color: logoText,
-                  fontSize: "0.9rem",
-                }}
-              >
-                {link.label}
-              </button>
+              <div key={link.label}>
+                {link.dropdown ? (
+                  <div className="flex flex-col gap-1">
+                    <span
+                      className="px-4 py-2 text-[0.7rem] font-bold tracking-widest text-accent uppercase"
+                      style={{ fontFamily: "'Orbitron', sans-serif" }}
+                    >
+                      {link.label}
+                    </span>
+                    {link.dropdown.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full text-left px-8 py-2.5 rounded transition-colors duration-200 btn-interaction"
+                        style={{
+                          fontFamily: "'Rajdhani', sans-serif",
+                          fontWeight: 600,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: logoText,
+                          fontSize: "0.85rem",
+                        }}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    {link.href!.startsWith("#") ? (
+                      <button
+                        onClick={() => scrollTo(link.href!)}
+                        className="w-full text-left px-4 py-3 rounded transition-colors duration-200 btn-interaction"
+                        style={{
+                          fontFamily: "'Rajdhani', sans-serif",
+                          fontWeight: 600,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: logoText,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        href={link.href!}
+                        onClick={() => setMobileOpen(false)}
+                        className="w-full text-left px-4 py-3 rounded transition-colors duration-200 btn-interaction block"
+                        style={{
+                          fontFamily: "'Rajdhani', sans-serif",
+                          fontWeight: 600,
+                          letterSpacing: "0.1em",
+                          textTransform: "uppercase",
+                          color: logoText,
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </>
+                )}
+              </div>
             ))}
             <button
               onClick={() => scrollTo("#contact")}
@@ -317,13 +476,17 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         </div>
       </nav>
 
-      <style jsx global>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         .z-nav { z-index: 500; }
         .group:hover > span:first-child {
           opacity: 1 !important;
           transform: scale(1) !important;
         }
-      `}</style>
+      `,
+        }}
+      />
     </>
   );
 }
