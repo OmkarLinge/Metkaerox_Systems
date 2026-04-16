@@ -536,9 +536,10 @@ export default function DroneModel({
 }: DroneModelProps) {
   return (
     <Canvas
+      dpr={[1, 2]}
       camera={{ position: cameraPosition, fov }}
-      gl={{ alpha: true, antialias: true }}
-      style={{ background: "transparent" }}
+      gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+      style={{ background: "transparent", width: "100%", height: "100%" }}
     >
       <ambientLight intensity={ambientIntensity} color={ambientColor} />
       <directionalLight

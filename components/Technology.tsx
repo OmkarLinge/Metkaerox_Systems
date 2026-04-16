@@ -212,11 +212,11 @@ export default function Technology() {
   return (
     <section
       id="technology"
-      className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
+      className={`relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
       style={{ backgroundColor: "var(--bg)" }}
       ref={ref}
     >
-      {/* Background */}
+      {/* Background with Diagnostic Grid & Scanline */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
@@ -229,29 +229,41 @@ export default function Technology() {
           background: "radial-gradient(ellipse 50% 40% at 80% 50%, rgba(var(--highlight-rgb),0.03) 0%, transparent 60%)",
         }}
       />
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+          <div 
+             className="absolute inset-0"
+             style={{
+               backgroundImage: `linear-gradient(rgba(var(--accent-rgb), 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(var(--accent-rgb), 0.1) 1px, transparent 1px)`,
+               backgroundSize: "20px 20px"
+             }}
+          />
+          <div 
+             className="absolute top-0 left-0 w-full h-px bg-cyan-400/20 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+             style={{ animation: "scan 6s linear infinite" }}
+          />
+      </div>
+
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+        @keyframes scan {
+          0% { top: 0; }
+          100% { top: 100%; }
+        }
+      `,
+        }}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
-          className="text-center mb-10 lg:mb-12"
+          className="text-center mb-16 lg:mb-20"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(30px)",
             transition: "all 0.7s ease",
           }}
         >
-          <p
-            style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.7rem",
-              letterSpacing: "0.35em",
-              color: "var(--accent)",
-              textTransform: "uppercase",
-              marginBottom: "12px",
-            }}
-          >
-            // CORE TECH
-          </p>
           <h2
             style={{
               fontFamily: "'Orbitron', sans-serif",
