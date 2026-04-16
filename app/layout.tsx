@@ -15,13 +15,30 @@ export const metadata: Metadata = {
   },
 };
 
+import ClientLayout from "@/components/ClientLayout";
+
+const bootScript = `
+  (function () {
+    try {
+      var root = document.documentElement;
+      var savedTheme = localStorage.getItem("theme");
+      var theme = savedTheme === "dark" || savedTheme === "light"
+        ? savedTheme
+        : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+
+      root.classList.remove("light", "dark");
+      root.classList.add(theme);
+    } catch (error) {}
+  })();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -49,25 +66,13 @@ export default function RootLayout({
         />
         <script
           dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                try {
-                  var savedTheme = localStorage.getItem("theme");
-                  var root = document.documentElement;
-                  if (savedTheme === "dark") {
-                    root.classList.add("dark");
-                    root.classList.remove("light");
-                  } else {
-                    root.classList.add("light");
-                    root.classList.remove("dark");
-                  }
-                } catch (error) {}
-              })();
-            `,
+            __html: bootScript,
           }}
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
   );
 }
