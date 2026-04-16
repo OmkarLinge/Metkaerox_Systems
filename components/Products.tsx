@@ -2,247 +2,662 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronRight, ArrowLeft, ArrowRight, ShoppingBag } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  useMotionValue,
+  useTransform,
+  useSpring,
+} from "framer-motion";
+import { ArrowLeft, ArrowRight, ChevronRight } from "lucide-react";
 import { products, type Product } from "@/data/company";
 
-// Refined Sleek Neutral Palette
-const themeColors: Record<string, string> = {
-  flysurveilx: "var(--bg)",
-  flyastros: "var(--bg-secondary)",
-  flycleon: "var(--surface-contrast)",
-  flygripper: "var(--bg)",
-  flyirax: "var(--bg-secondary)",
-  flyvarun: "var(--surface-contrast)",
-  flyspyder: "var(--bg)",
-  firehawks: "var(--bg-secondary)",
-};
+function getKeySpecs(product: Product) {
+  return product.specs.slice(0, 3);
+}
 
-const noiseSvg = `data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E`;
+/* ── tiny animated counter ── */
+function AnimatedValue({ value }: { value: string }) {
+  const numMatch = value.match(/^([\d.,]+)/);
+  const [displayed, setDisplayed] = useState(0);
+  const num = numMatch ? parseFloat(numMatch[1].replace(/,/g, "")) : 0;
+  const suffix = numMatch ? value.slice(numMatch[1].length) : value;
 
-function InternalMockup({ product, isFront }: { product: Product; isFront: boolean }) {
-  const cleanTagline = product.tagline.replace(/\\n/g, " ");
+  useEffect(() => {
+    if (!num) return;
+    let frame: number;
+    const duration = 1200;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      setDisplayed(Math.round(num * ease));
+      if (t < 1) frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [num]);
 
+  if (!num) return <>{value}</>;
   return (
-    <div className="w-full aspect-[16/11] bg-white rounded-[2rem] shadow-xl overflow-hidden relative border border-gray-100 flex flex-col">
-      {/* Navbar Mockup - High Contrast */}
-      <div className="h-8 px-4 flex items-center justify-between bg-white/40 backdrop-blur-sm z-20 border-b border-gray-100">
-         <span className="text-[10px] font-black tracking-tighter text-black uppercase">{product.name}</span>
-         <div className="flex items-center gap-2">
-            <ShoppingBag size={10} className="text-black/60" />
-            <div className="w-1.5 h-1.5 rounded-full bg-black/30" />
-         </div>
-      </div>
+    <>
+      {displayed}
+      {suffix}
+    </>
+  );
+}
 
-      {/* Content Mockup - Hardened Legibility */}
-      <div className="flex-1 px-6 relative flex flex-col justify-center">
-         <div className="w-full z-10 space-y-2">
-            <h4 className="text-xl font-extrabold text-black leading-tight tracking-tighter uppercase">
-               {cleanTagline.split(" ").slice(0, 2).join(" ")}
-            </h4>
-            <div className="flex gap-1.5">
-               <span className="px-2 py-0.5 bg-black text-white text-[7px] font-black uppercase rounded-sm italic">
-                  Systems Ready
-               </span>
-            </div>
-            <p className="text-[9px] text-[#18181B] font-bold leading-relaxed max-w-[140px]">
-               Metkaerox Industrial Precision System. Active Pulse Logic.
-            </p>
-         </div>
-
-         {/* Product Image - Restored Size/Position */}
-         <div className="absolute right-[-10%] top-0 bottom-0 w-[75%] flex items-center justify-center">
-            <div className={`relative w-full h-[80%] transform transition-transform duration-1000 ${isFront ? 'scale-110 translate-x-2' : 'opacity-20 grayscale'}`}>
-               <Image 
-                 src={product.image}
-                 alt={product.name}
-                 fill
-                 className="object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.15)]"
-                 sizes="300px"
-                 priority
-               />
-            </div>
-         </div>
-      </div>
+/* ── floating particles for each product ── */
+function ProductParticles({ color }: { color: string }) {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {Array.from({ length: 18 }).map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: 2 + Math.random() * 4,
+            height: 2 + Math.random() * 4,
+            background: color,
+            opacity: 0.15 + Math.random() * 0.2,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+          }}
+          animate={{
+            y: [0, -20 - Math.random() * 30, 0],
+            x: [0, (Math.random() - 0.5) * 20, 0],
+            opacity: [0.1, 0.35, 0.1],
+          }}
+          transition={{
+            duration: 5 + Math.random() * 7,
+            repeat: Infinity,
+            delay: Math.random() * 4,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
     </div>
   );
 }
 
+/* ── auto-advance progress bar ── */
+const AUTO_ADVANCE_MS = 6000;
+
+function ProgressRing({
+  running,
+  color,
+  onComplete,
+}: {
+  running: boolean;
+  color: string;
+  onComplete: () => void;
+}) {
+  const elapsed = useRef(0);
+  const barRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!running) {
+      elapsed.current = 0;
+      if (barRef.current) barRef.current.style.width = "0%";
+      return;
+    }
+    let prev = performance.now();
+    let frame: number;
+    const tick = (now: number) => {
+      const dt = now - prev;
+      prev = now;
+      elapsed.current += dt;
+      const pct = Math.min(elapsed.current / AUTO_ADVANCE_MS, 1);
+      if (barRef.current) barRef.current.style.width = `${pct * 100}%`;
+      if (pct >= 1) {
+        onComplete();
+        return;
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [running, onComplete]);
+
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 h-[3px] overflow-hidden"
+      style={{ backgroundColor: "rgba(var(--highlight-rgb),0.06)" }}
+    >
+      <div
+        ref={barRef}
+        className="h-full transition-none"
+        style={{
+          background: `linear-gradient(90deg, ${color}, var(--accent))`,
+          width: "0%",
+        }}
+      />
+    </div>
+  );
+}
+
+/* ── main component ── */
 export default function Products() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const currentProduct = products[activeIndex];
+  const [direction, setDirection] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  const nextCard = () => {
-    setActiveIndex((prev) => (prev + 1) % products.length);
+  const product = products[activeIndex];
+
+  /* 3D tilt mouse tracking */
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [4, -4]), {
+    stiffness: 150,
+    damping: 20,
+  });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-4, 4]), {
+    stiffness: 150,
+    damping: 20,
+  });
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (shouldReduceMotion) return;
+      const rect = cardRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+      mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+    },
+    [mouseX, mouseY, shouldReduceMotion]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    mouseX.set(0);
+    mouseY.set(0);
+    setIsHovered(false);
+  }, [mouseX, mouseY]);
+
+  /* navigation helpers */
+  const go = useCallback(
+    (index: number) => {
+      setDirection(index > activeIndex ? 1 : index < activeIndex ? -1 : 0);
+      setActiveIndex(index);
+      setHasInteracted(true);
+    },
+    [activeIndex]
+  );
+
+  const prev = useCallback(() => {
+    setDirection(-1);
+    setActiveIndex((p) => (p - 1 + products.length) % products.length);
+    setHasInteracted(true);
+  }, []);
+
+  const next = useCallback(() => {
+    setDirection(1);
+    setActiveIndex((p) => (p + 1) % products.length);
+    setHasInteracted(true);
+  }, []);
+
+  /* keyboard navigation */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") prev();
+      if (e.key === "ArrowRight") next();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [prev, next]);
+
+  /* auto advance */
+  const autoNext = useCallback(() => {
+    if (!isHovered) {
+      setDirection(1);
+      setActiveIndex((p) => (p + 1) % products.length);
+    }
+  }, [isHovered]);
+
+  const keySpecs = getKeySpecs(product);
+
+  /* variants */
+  const cardVariants = {
+    enter: (d: number) => ({
+      x: d > 0 ? 120 : -120,
+      opacity: 0,
+      scale: 0.92,
+      rotateY: d > 0 ? 8 : -8,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      rotateY: 0,
+    },
+    exit: (d: number) => ({
+      x: d > 0 ? -120 : 120,
+      opacity: 0,
+      scale: 0.92,
+      rotateY: d > 0 ? -8 : 8,
+    }),
   };
 
-  const prevCard = () => {
-    setActiveIndex((prev) => (prev - 1 + products.length) % products.length);
+  const stagger = {
+    hidden: {},
+    show: {
+      transition: { staggerChildren: 0.07, delayChildren: 0.15 },
+    },
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 18 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
   };
 
   return (
-    <motion.section 
-      id="products" 
-      animate={{ backgroundColor: themeColors[currentProduct.id] || "var(--bg)" }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-      className="relative py-12 min-h-[95vh] flex flex-col items-center justify-center overflow-hidden"
+    <section
+      id="products"
+      className="relative overflow-hidden"
+      style={{
+        backgroundColor: "var(--bg)",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        paddingTop: "80px",
+        paddingBottom: "40px",
+      }}
     >
-      {/* Texture Noise Overlay */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.03]" 
-        style={{ backgroundImage: `url("${noiseSvg}")` }}
-      />
+      {/* subtle grid bg */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05]">
+        <div className="grid-bg h-full w-full" />
+      </div>
 
-      <div className="max-w-7xl mx-auto px-6 w-full flex flex-col items-center relative z-10">
-        
-        {/* Editorial Heading */}
-        <div className="text-center mb-10">
-          <motion.h2 
-            initial={{ opacity: 0, y: 15 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            className="text-5xl md:text-6xl font-black text-black leading-none tracking-tighter uppercase"
+      {/* top ambient glow — uses the product's color */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-0 flex justify-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={product.id + "-glow"}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="h-72 w-[90vw] max-w-5xl rounded-full blur-[100px]"
+            style={{
+              background: `radial-gradient(circle, ${product.color}22 0%, rgba(var(--accent-rgb),0.04) 48%, transparent 72%)`,
+            }}
+          />
+        </AnimatePresence>
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6">
+        {/* ── Section Heading ── */}
+        <div className="mx-auto mb-10 max-w-3xl text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.45 }}
+            transition={{ duration: 0.45 }}
+            className="text-4xl font-black uppercase tracking-tighter md:text-5xl"
+            style={{
+              color: "var(--highlight)",
+              fontFamily: "'Orbitron', sans-serif",
+            }}
           >
-             OUR <span 
-              className="text-white" 
-              style={{ WebkitTextStroke: '1.5px #000' }}
-             >
-                PRODUCTS
-             </span>
+            Our <span style={{ color: "var(--accent)" }}>Products</span>
           </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.45 }}
+            transition={{ duration: 0.45, delay: 0.08 }}
+            className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed md:text-base"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Browse our complete lineup of advanced drone systems built for
+            defense, agriculture, industry, and beyond.
+          </motion.p>
         </div>
 
-        {/* 5-Card Deck */}
-        <div className="relative w-full max-w-[340px] h-[520px] flex items-center justify-center pt-10">
-           {products.map((product, i) => {
-              let relativeIndex = i - activeIndex;
-              if (relativeIndex > products.length / 2) relativeIndex -= products.length;
-              if (relativeIndex < -products.length / 2) relativeIndex += products.length;
-              
-              const isVisible = Math.abs(relativeIndex) <= 2;
-              if (!isVisible) return null;
+        {/* ── Product Showcase Card ── */}
+        <div style={{ perspective: "1200px" }}>
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={product.id}
+              ref={cardRef}
+              custom={direction}
+              variants={cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={
+                shouldReduceMotion
+                  ? { duration: 0.15 }
+                  : {
+                      type: "spring",
+                      stiffness: 260,
+                      damping: 28,
+                      mass: 0.9,
+                    }
+              }
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={handleMouseLeave}
+              style={{
+                rotateX: shouldReduceMotion ? 0 : rotateX,
+                rotateY: shouldReduceMotion ? 0 : rotateY,
+                transformStyle: "preserve-3d",
+              }}
+              className="product-showcase-card relative mx-auto flex flex-col lg:flex-row overflow-hidden"
+            >
+              {/* product particles */}
+              <ProductParticles color={product.color} />
 
-              const isFront = relativeIndex === 0;
-              
-              return (
+              {/* animated border glow */}
+              <div
+                className="absolute inset-0 rounded-[1.2rem] pointer-events-none z-[1] transition-opacity duration-500"
+                style={{
+                  boxShadow: isHovered
+                    ? `0 0 40px ${product.color}30, inset 0 0 40px ${product.color}08`
+                    : "none",
+                  border: `1px solid ${isHovered ? product.color + "40" : "var(--border)"}`,
+                  borderRadius: "1.2rem",
+                  opacity: 1,
+                }}
+              />
+
+              {/* ── Image Side ── */}
+              <div
+                className="relative flex-shrink-0 overflow-hidden"
+                style={{
+                  width: "100%",
+                  maxWidth: "520px",
+                  aspectRatio: "1 / 1",
+                }}
+              >
+                {/* color wash behind image */}
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{
+                    background: `linear-gradient(135deg, ${product.color}12 0%, rgba(var(--highlight-rgb),0.03) 50%, ${product.color}08 100%)`,
+                  }}
+                />
+
                 <motion.div
-                  key={product.id}
-                  style={{ 
-                    backgroundColor: "white", 
-                    zIndex: 100 - Math.abs(relativeIndex),
+                  className="relative w-full h-full"
+                  initial={{ scale: 1.08, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.7, ease: "easeOut" }}
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 520px"
+                    className="object-cover"
+                    style={{
+                      objectPosition: product.imagePosition ?? "center center",
+                    }}
+                    priority
+                  />
+                </motion.div>
+
+                {/* gradient overlay on image */}
+                <div
+                  className="absolute inset-0 z-[2]"
+                  style={{
+                    background: `linear-gradient(180deg, transparent 50%, ${product.color}18 100%)`,
                   }}
-                  animate={{ 
-                    scale: 1 - Math.abs(relativeIndex) * 0.16,
-                    x: relativeIndex * 260,
-                    rotate: relativeIndex * 6,
-                    y: Math.abs(relativeIndex) * 35,
-                    opacity: 1 - Math.abs(relativeIndex) * 0.45,
-                    filter: isFront ? "none" : `blur(${Math.abs(relativeIndex) * 4}px) grayscale(0.8)`,
-                  }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 220, 
-                    damping: 38,
-                  }}
-                  className="absolute w-full h-full rounded-[4rem] p-10 shadow-[0_45px_100px_-20px_rgba(0,0,0,0.15)] flex flex-col cursor-pointer border border-gray-100"
-                  onClick={() => {
-                    if (relativeIndex > 0) nextCard();
-                    else if (relativeIndex < 0) prevCard();
-                    else nextCard();
+                />
+
+                {/* category badge */}
+                <motion.span
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.25, duration: 0.4 }}
+                  className="absolute top-5 left-5 z-10 rounded-full px-4 py-2 text-[0.6rem] font-black uppercase tracking-[0.18em]"
+                  style={{
+                    backgroundColor: `${product.color}cc`,
+                    color: "#fff",
+                    backdropFilter: "blur(12px)",
+                    boxShadow: `0 4px 20px ${product.color}50`,
                   }}
                 >
-                  <div className="flex items-center justify-between mb-8">
-                     <div 
-                        className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center shadow-lg transition-transform active:scale-90"
-                        onClick={(e) => { e.stopPropagation(); prevCard(); }}
-                     >
-                        <ArrowLeft size={16} />
-                     </div>
-                     <span className="text-[11px] font-black tracking-widest text-[#18181B] bg-black/5 px-3 py-1 rounded-full uppercase">
-                        // {product.category.split(" ")[0]}
-                     </span>
-                  </div>
+                  {product.category}
+                </motion.span>
 
-                  <div className="flex-1 flex flex-col justify-center">
-                     <InternalMockup product={product} isFront={isFront} />
-                  </div>
+                {/* product icon */}
+                <motion.span
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring", stiffness: 400 }}
+                  className="absolute bottom-5 left-5 z-10 text-3xl"
+                  style={{
+                    filter: `drop-shadow(0 2px 8px ${product.color}80)`,
+                  }}
+                >
+                  {product.icon}
+                </motion.span>
+              </div>
 
-                  <div className="mt-10 flex justify-between items-end">
-                     <div className="space-y-1">
-                        <h3 className="text-3xl font-black text-black leading-tight tracking-tighter uppercase italic">
-                           {product.name}
-                        </h3>
-                        <p className="text-[11px] font-black text-[#52525B] uppercase tracking-widest">
-                           Industrial Grade // Fleet
-                        </p>
-                     </div>
-                     <Link href={`/products/${product.id}`} className="group/btn" onClick={(e) => e.stopPropagation()}>
-                        <div className="w-14 h-14 rounded-[1.8rem] bg-black text-white flex items-center justify-center group-hover/btn:scale-110 transition-all shadow-2xl shadow-black/30">
-                           <ChevronRight size={28} />
-                        </div>
-                     </Link>
-                  </div>
+              {/* ── Info Panel ── */}
+              <motion.div
+                className="relative flex flex-1 flex-col justify-center p-7 sm:p-9 lg:p-12 z-[2]"
+                variants={stagger}
+                initial="hidden"
+                animate="show"
+              >
+                {/* tagline */}
+                <motion.span
+                  variants={fadeUp}
+                  className="text-[0.6rem] font-black uppercase tracking-[0.3em]"
+                  style={{ color: product.color }}
+                >
+                  {product.tagline}
+                </motion.span>
+
+                {/* name */}
+                <motion.h3
+                  variants={fadeUp}
+                  className="mt-3 text-3xl font-black uppercase leading-tight tracking-tight sm:text-4xl lg:text-[2.8rem]"
+                  style={{
+                    color: "var(--highlight)",
+                    fontFamily: "'Orbitron', sans-serif",
+                  }}
+                >
+                  {product.name}
+                </motion.h3>
+
+                {/* divider line with product color */}
+                <motion.div
+                  variants={fadeUp}
+                  className="mt-4 h-[2px] w-16 rounded-full"
+                  style={{
+                    background: `linear-gradient(90deg, ${product.color}, transparent)`,
+                  }}
+                />
+
+                {/* description */}
+                <motion.p
+                  variants={fadeUp}
+                  className="mt-4 text-sm leading-relaxed sm:text-base"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  {product.description}
+                </motion.p>
+
+                {/* specs with animated values */}
+                <motion.div variants={fadeUp} className="mt-6 flex flex-wrap gap-3">
+                  {keySpecs.map((spec) => (
+                    <div
+                      key={`${product.id}-${spec.label}`}
+                      className="relative rounded-xl px-4 py-2.5 overflow-hidden"
+                      style={{
+                        backgroundColor: `${product.color}10`,
+                        border: `1px solid ${product.color}25`,
+                      }}
+                    >
+                      <span
+                        className="block text-[0.55rem] font-bold uppercase tracking-[0.18em] mb-0.5"
+                        style={{ color: "var(--text-muted)" }}
+                      >
+                        {spec.label}
+                      </span>
+                      <span
+                        className="block text-sm font-black"
+                        style={{
+                          color: product.color,
+                          fontFamily: "'Share Tech Mono', monospace",
+                        }}
+                      >
+                        <AnimatedValue value={spec.value} />
+                      </span>
+                    </div>
+                  ))}
                 </motion.div>
-              );
-           })}
+
+                {/* CTA button */}
+                <motion.div variants={fadeUp}>
+                  <Link
+                    href={`/products/${product.id}`}
+                    className="group mt-7 inline-flex items-center gap-3 rounded-full px-6 py-3 text-[0.7rem] font-black uppercase tracking-[0.2em] transition-all duration-300"
+                    style={{
+                      backgroundColor: `${product.color}15`,
+                      color: product.color,
+                      border: `1px solid ${product.color}30`,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = product.color;
+                      e.currentTarget.style.color = "#fff";
+                      e.currentTarget.style.boxShadow = `0 8px 30px ${product.color}50`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = `${product.color}15`;
+                      e.currentTarget.style.color = product.color;
+                      e.currentTarget.style.boxShadow = "none";
+                    }}
+                  >
+                    View Product
+                    <ChevronRight
+                      size={14}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
+                  </Link>
+                </motion.div>
+              </motion.div>
+
+              {/* auto-advance progress bar */}
+              <ProgressRing
+                running={!isHovered && !hasInteracted}
+                color={product.color}
+                onComplete={autoNext}
+              />
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {/* Improved Navigation */}
-        <div className="mt-14 flex flex-col items-center gap-10 w-full">
-           <div className="flex items-center gap-2">
-              {products.map((_, idx) => (
-                 <motion.div 
-                    key={idx}
-                    className={`h-2 rounded-full transition-all duration-1000 ${idx === activeIndex ? 'w-12 bg-black' : 'w-2 bg-black/20'}`}
-                 />
-              ))}
-           </div>
-
-           <div className="flex items-center gap-10">
-              <button 
-                onClick={prevCard}
-                className="relative w-16 h-16 flex items-center justify-center group"
+        {/* ── Navigation ── */}
+        <div className="mt-8 flex flex-col items-center gap-5">
+          {/* product name strip */}
+          <div className="hidden sm:flex items-center gap-1 rounded-full px-2 py-1"
+            style={{ backgroundColor: "rgba(var(--highlight-rgb),0.04)" }}
+          >
+            {products.map((p, index) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-label={`Show ${p.name}`}
+                onClick={() => go(index)}
+                className="relative rounded-full px-4 py-2 text-[0.6rem] font-bold uppercase tracking-[0.12em] transition-all duration-300"
+                style={{
+                  color:
+                    index === activeIndex
+                      ? "#fff"
+                      : "var(--text-muted)",
+                }}
               >
-                 <div className="absolute inset-0 bg-black rounded-full scale-[0.85] group-hover:scale-100 transition-all duration-700 shadow shadow-black/20" />
-                 <ArrowLeft size={24} className="text-white relative z-10" />
-                 
-                 <svg className="absolute inset-0 w-full h-full -rotate-90">
-                   <motion.circle 
-                     cx="32" cy="32" r="30" 
-                     fill="none" 
-                     stroke="currentColor" 
-                     strokeWidth="1.2" 
-                     className="text-black"
-                     strokeDasharray="188.5"
-                     animate={{ strokeDashoffset: 188.5 - (188.5 * (activeIndex + 1)) / products.length }}
-                     transition={{ duration: 0.8 }}
-                   />
-                 </svg>
+                {index === activeIndex && (
+                  <motion.div
+                    layoutId="product-pill"
+                    className="absolute inset-0 rounded-full"
+                    style={{ backgroundColor: product.color }}
+                    transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{p.name}</span>
               </button>
+            ))}
+          </div>
 
-              <button 
-                onClick={nextCard}
-                className="relative w-16 h-16 flex items-center justify-center group"
-              >
-                 <div className="absolute inset-0 bg-black rounded-full scale-[0.85] group-hover:scale-100 transition-all duration-700 shadow shadow-black/20" />
-                 <ArrowRight size={24} className="text-white relative z-10" />
-                 
-                 <svg className="absolute inset-0 w-full h-full -rotate-90">
-                   <motion.circle 
-                     cx="32" cy="32" r="30" 
-                     fill="none" 
-                     stroke="currentColor" 
-                     strokeWidth="1.2" 
-                     className="text-black"
-                     strokeDasharray="188.5"
-                     animate={{ strokeDashoffset: 188.5 - (188.5 * (activeIndex + 1)) / products.length }}
-                     transition={{ duration: 0.8 }}
-                   />
-                 </svg>
-              </button>
-           </div>
+          {/* mobile dots */}
+          <div className="flex sm:hidden items-center gap-2">
+            {products.map((p, index) => (
+              <button
+                key={p.id}
+                type="button"
+                aria-label={`Show ${p.name}`}
+                onClick={() => go(index)}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  index === activeIndex ? "w-8" : "w-2"
+                }`}
+                style={{
+                  backgroundColor:
+                    index === activeIndex
+                      ? product.color
+                      : "rgba(var(--highlight-rgb),0.18)",
+                }}
+              />
+            ))}
+          </div>
+
+          {/* arrow buttons */}
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={prev}
+              className="group flex h-12 w-12 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                backgroundColor: "var(--highlight)",
+                color: "var(--button-contrast)",
+                boxShadow: `0 4px 16px rgba(var(--highlight-rgb),0.2)`,
+              }}
+            >
+              <ArrowLeft
+                size={18}
+                className="transition-transform duration-200 group-hover:-translate-x-0.5"
+              />
+            </button>
+
+            {/* counter */}
+            <span
+              className="text-xs font-bold tracking-wider"
+              style={{
+                color: "var(--text-muted)",
+                fontFamily: "'Share Tech Mono', monospace",
+              }}
+            >
+              {String(activeIndex + 1).padStart(2, "0")} /{" "}
+              {String(products.length).padStart(2, "0")}
+            </span>
+
+            <button
+              type="button"
+              onClick={next}
+              className="group flex h-12 w-12 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-0.5"
+              style={{
+                backgroundColor: "var(--highlight)",
+                color: "var(--button-contrast)",
+                boxShadow: `0 4px 16px rgba(var(--highlight-rgb),0.2)`,
+              }}
+            >
+              <ArrowRight
+                size={18}
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              />
+            </button>
+          </div>
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
