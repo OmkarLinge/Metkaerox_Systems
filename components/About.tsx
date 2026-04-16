@@ -71,7 +71,7 @@ export default function About() {
     <>
       <section
         id="about"
-        className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
+        className={`relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
         style={{ backgroundColor: "var(--bg)" }}
         ref={sectionRef}
       >
@@ -87,25 +87,13 @@ export default function About() {
 
         {/* Section header */}
         <div
-          className="text-center mb-10 lg:mb-12"
+          className="text-center mb-16 lg:mb-20"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(30px)",
             transition: "all 0.7s ease",
           }}
         >
-          <p
-            style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.7rem",
-              letterSpacing: "0.35em",
-              color: "var(--accent)",
-              textTransform: "uppercase",
-              marginBottom: "12px",
-            }}
-          >
-            // WHO WE ARE
-          </p>
           <h2
             style={{
               fontFamily: "'Orbitron', sans-serif",
@@ -357,7 +345,9 @@ export default function About() {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-16px); }
@@ -376,7 +366,9 @@ export default function About() {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-      `}</style>
+      `,
+        }}
+      />
       </section>
     </>
   );

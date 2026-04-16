@@ -92,7 +92,7 @@ export default function MissionTimeline() {
   return (
     <motion.section
       id="timeline"
-      className="relative py-12 lg:py-16 overflow-hidden"
+      className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden"
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.25 }}
@@ -101,19 +101,7 @@ export default function MissionTimeline() {
       <div className="mission-bg" aria-hidden="true" />
       <div className="mission-grid" aria-hidden="true" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8 lg:mb-10">
-          <p
-            style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.7rem",
-              letterSpacing: "0.35em",
-              color: "var(--accent)",
-              textTransform: "uppercase",
-              marginBottom: "12px",
-            }}
-          >
-            // MISSION TIMELINE
-          </p>
+        <div className="text-center mb-16 lg:mb-20">
           <h2
             style={{
               fontFamily: "'Orbitron', sans-serif",
