@@ -161,8 +161,19 @@ export default function Footer() {
                   <li key={link}>
                     <button
                       onClick={() => {
-                        if (link === "About Us") scrollTo("about");
-                        else if (link === "Mission & Vision") scrollTo("about");
+                        const lowLink = link.toLowerCase();
+                        if (lowLink.includes("surveil") || lowLink.includes("astros") || lowLink.includes("cleon") || lowLink.includes("gripper") || lowLink.includes("irax") || lowLink.includes("varun") || lowLink.includes("spyder") || lowLink.includes("hawks")) {
+                          scrollTo("products");
+                        } else if (lowLink.includes("slam") || lowLink.includes("hopping") || lowLink.includes("spoofing") || lowLink.includes("swarm") || lowLink.includes("tether")) {
+                          scrollTo("technology");
+                        } else if (lowLink === "about us" || lowLink === "mission & vision") {
+                          scrollTo("about");
+                        } else if (lowLink === "certifications") {
+                          scrollTo("about");
+                        } else if (lowLink === "privacy policy" || lowLink === "terms of service" || lowLink === "export compliance" || lowLink === "cookie policy") {
+                           // Open modal or just scroll to top for now
+                           window.scrollTo({ top: 0, behavior: "smooth" });
+                        }
                       }}
                       className="text-left transition-all duration-200 hover:translate-x-1 block"
                       style={{
@@ -239,12 +250,16 @@ export default function Footer() {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
         }
-      `}</style>
+      `,
+        }}
+      />
     </footer>
   );
 }

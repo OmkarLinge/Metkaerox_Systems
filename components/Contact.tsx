@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Send, MapPin, Phone, Mail, CheckCircle, AlertCircle } from "lucide-react";
+import DroneModel from "./DroneModel";
 
 function useInView(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
@@ -100,7 +101,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className={`relative py-10 lg:py-14 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
+      className={`relative pt-12 pb-16 lg:pt-16 lg:pb-24 overflow-hidden section-reveal ${inView ? "visible" : ""}`}
       style={{ backgroundColor: "var(--bg)" }}
       ref={ref}
     >
@@ -125,25 +126,13 @@ export default function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div
-          className="text-center mb-10 lg:mb-12"
+          className="text-center mb-16 lg:mb-20"
           style={{
             opacity: inView ? 1 : 0,
             transform: inView ? "translateY(0)" : "translateY(30px)",
             transition: "all 0.7s ease",
           }}
         >
-          <p
-            style={{
-              fontFamily: "'Share Tech Mono', monospace",
-              fontSize: "0.7rem",
-              letterSpacing: "0.35em",
-              color: "var(--accent)",
-              textTransform: "uppercase",
-              marginBottom: "12px",
-            }}
-          >
-            // INITIATE CONTACT
-          </p>
           <h2
             style={{
               fontFamily: "'Orbitron', sans-serif",
@@ -180,89 +169,70 @@ export default function Contact() {
               transition: "all 0.8s ease 0.2s",
             }}
           >
-            {/* Drone radar visual */}
-            <div
-              className="relative rounded-2xl overflow-hidden flex items-center justify-center"
-              style={{
-                border: "1px solid var(--border)",
-                backgroundColor: "var(--bg-secondary)",
-                height: "260px",
-              }}
-            >
-              {/* Radar rings */}
-              <svg
-                viewBox="0 0 240 240"
-                width="240"
-                height="240"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="absolute"
+              {/* Center Staged 3D Drone Display */}
+              <div
+                className="relative rounded-2xl overflow-hidden"
+                style={{
+                  border: "1px solid var(--border)",
+                  backgroundColor: "var(--bg-secondary)",
+                  minHeight: "410px",
+                  boxShadow: "0 14px 36px rgba(0,0,0,0.04)",
+                }}
               >
-                {[30, 55, 80, 105].map((r, i) => (
-                  <circle
+                {/* Glow effect */}
+                <div
+                  className="absolute inset-x-[10%] bottom-[14%] h-14 rounded-full pointer-events-none"
+                  style={{
+                    background: "radial-gradient(circle, rgba(var(--accent-rgb),0.12) 0%, rgba(var(--accent-rgb),0) 72%)",
+                    filter: "blur(14px)",
+                  }}
+                />
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <DroneModel 
+                      modelPath="/models/drone.glb"
+                      scale={5.5}
+                      position={[0, -0.3, 0]}
+                      rotationSpeed={0.003}
+                      enableAutoRotate={true}
+                      floatIntensity={0.3}
+                      cameraPosition={[0, 1, 4]}
+                      fov={40}
+                      environmentPreset="studio"
+                      enableControls={true}
+                      enableZoom={true}
+                      minDistance={2}
+                      maxDistance={8}
+                    />
+                </div>
+
+                {/* Scan line effect */}
+                <div
+                  className="absolute left-0 right-0 h-px pointer-events-none"
+                  style={{
+                    background: "linear-gradient(90deg, transparent, var(--accent), transparent)",
+                    opacity: 0.16,
+                    animation: "scanLine 4s ease-in-out infinite",
+                  }}
+                />
+
+                {/* Corner marks */}
+                {["top-4 left-4", "top-4 right-4", "bottom-4 left-4", "bottom-4 right-4"].map((pos, i) => (
+                  <div
                     key={i}
-                    cx="120"
-                    cy="120"
-                    r={r}
-                    stroke="var(--accent)"
-                    strokeWidth="0.75"
-                    opacity={0.12 + i * 0.04}
+                    className={`absolute ${pos} w-6 h-6`}
+                    style={{
+                      borderTop: i < 2 ? "2px solid var(--accent)" : "none",
+                      borderBottom: i >= 2 ? "2px solid var(--accent)" : "none",
+                      borderLeft: i % 2 === 0 ? "2px solid var(--accent)" : "none",
+                      borderRight: i % 2 === 1 ? "2px solid var(--accent)" : "none",
+                      opacity: 0.3,
+                    }}
                   />
                 ))}
-                {/* Cross hairs */}
-                <line x1="120" y1="15" x2="120" y2="225" stroke="var(--accent)" strokeWidth="0.5" opacity="0.1" />
-                <line x1="15" y1="120" x2="225" y2="120" stroke="var(--accent)" strokeWidth="0.5" opacity="0.1" />
-                {/* Diagonal */}
-                <line x1="40" y1="40" x2="200" y2="200" stroke="var(--accent)" strokeWidth="0.5" opacity="0.06" />
-                <line x1="200" y1="40" x2="40" y2="200" stroke="var(--accent)" strokeWidth="0.5" opacity="0.06" />
-                {/* Sweep */}
-                <path
-                  d="M 120 120 L 120 15 A 105 105 0 0 1 225 120 Z"
-                  fill="url(#radarGrad)"
-                  style={{ animation: "radarSweep 3s linear infinite", transformOrigin: "120px 120px" }}
-                />
-                <defs>
-                  <radialGradient id="radarGrad" cx="50%" cy="50%">
-                    <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.15" />
-                    <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-                  </radialGradient>
-                </defs>
-                {/* Blips */}
-                {[
-                  { x: 155, y: 80 },
-                  { x: 85, y: 145 },
-                  { x: 168, y: 150 },
-                ].map((p, i) => (
-                  <g key={i}>
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r="3"
-                      fill="var(--accent)"
-                      style={{ animation: `blip ${1.5 + i * 0.4}s ease-in-out infinite ${i * 0.5}s` }}
-                    />
-                    <circle cx={p.x} cy={p.y} r="6" stroke="var(--accent)" strokeWidth="0.75" fill="none" opacity="0.3" />
-                  </g>
-                ))}
-                {/* Center */}
-                <circle cx="120" cy="120" r="3" fill="var(--accent)" />
-                <circle cx="120" cy="120" r="8" stroke="var(--accent)" strokeWidth="1" fill="none" opacity="0.4" />
-              </svg>
-
-              {/* Overlay label */}
-              <div className="absolute bottom-4 left-0 right-0 text-center">
-                <span
-                  style={{
-                    fontFamily: "'Share Tech Mono', monospace",
-                    fontSize: "0.6rem",
-                    letterSpacing: "0.25em",
-                    color: "rgba(var(--accent-rgb),0.5)",
-                  }}
-                >
-                  ACTIVE TRACKING
-                </span>
               </div>
-            </div>
+
+
 
             {/* Contact info cards */}
             <div className="space-y-4">
@@ -658,7 +628,9 @@ export default function Contact() {
         </div>
       </div>
 
-      <style jsx global>{`
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @keyframes radarSweep {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -667,7 +639,15 @@ export default function Contact() {
           0%, 100% { opacity: 1; r: 3; }
           50% { opacity: 0.3; r: 1; }
         }
-      `}</style>
+        @keyframes scanLine {
+          0% { top: 0%; opacity: 0; }
+          10% { opacity: 0.4; }
+          90% { opacity: 0.4; }
+          100% { top: 100%; opacity: 0; }
+        }
+      `,
+        }}
+      />
     </section>
   );
 }
