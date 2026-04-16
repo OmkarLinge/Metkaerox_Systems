@@ -16,7 +16,7 @@ type ScrollSlideSectionProps = PropsWithChildren<{
 
 export default function ScrollSlideSection({
   children,
-  offset = 120,
+  offset = 88,
 }: ScrollSlideSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
@@ -36,28 +36,28 @@ export default function ScrollSlideSection({
   const opacityTarget = useTransform(
     scrollYProgress,
     [0, 0.1, 0.3, 1],
-    [0.2, 0.72, 1, 1]
+    [0.35, 0.78, 1, 1]
   );
   const scaleTarget = useTransform(
     scrollYProgress,
     [0, 0.42, 1],
-    [0.965, 1, 0.992]
+    [0.98, 1, 0.996]
   );
 
   const y = useSpring(yTarget, {
-    stiffness: 82,
-    damping: 24,
-    mass: 0.8,
+    stiffness: 74,
+    damping: 26,
+    mass: 0.92,
   });
   const opacity = useSpring(opacityTarget, {
-    stiffness: 110,
-    damping: 28,
-    mass: 0.5,
+    stiffness: 96,
+    damping: 30,
+    mass: 0.7,
   });
   const scale = useSpring(scaleTarget, {
-    stiffness: 110,
-    damping: 28,
-    mass: 0.5,
+    stiffness: 96,
+    damping: 30,
+    mass: 0.7,
   });
 
   return (
