@@ -388,17 +388,49 @@ export const technologies = [
   },
 ];
 
-export const clients = [
-  { name: "Indian Army", abbreviation: "ARMY", sector: "Defense" },
-  { name: "NDRF", abbreviation: "NDRF", sector: "Disaster Relief" },
-  { name: "Maharashtra Police", abbreviation: "MH POL", sector: "Law Enforcement" },
-  { name: "DRDO", abbreviation: "DRDO", sector: "Research" },
-  { name: "HAL", abbreviation: "HAL", sector: "Aerospace" },
-  { name: "ISRO", abbreviation: "ISRO", sector: "Space" },
-  { name: "ONGC", abbreviation: "ONGC", sector: "Energy" },
-  { name: "Railways", abbreviation: "RAIL", sector: "Infrastructure" },
-  { name: "Agriculture Dept", abbreviation: "AGRI", sector: "Agriculture" },
-  { name: "Smart Cities", abbreviation: "SMART", sector: "Urban" },
-  { name: "Mining Corp", abbreviation: "MINE", sector: "Mining" },
-  { name: "Coast Guard", abbreviation: "CG", sector: "Security" },
+export const clientGroups = [
+  {
+    id: "strategic",
+    name: "Strategic Partners",
+    subtitle: "OUR CLIENTS",
+    clients: [
+      { name: "Maharashtra Government", abbreviation: "MAH GOV", sector: "Government", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Emblem_of_Maharashtra.svg/1200px-Emblem_of_Maharashtra.svg.png", website: "https://maharashtra.gov.in" },
+      { name: "NHAI", abbreviation: "NHAI", sector: "Infrastructure", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/9/90/National_Highways_Authority_of_India_logo.svg/1200px-National_Highways_Authority_of_India_logo.svg.png", website: "https://nhai.gov.in" },
+      { name: "Pune Municipal Corporation", abbreviation: "PMC", sector: "Government", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/7/7e/Pune_Municipal_Corporation_logo.png/200px-Pune_Municipal_Corporation_logo.png", website: "https://pmc.gov.in" },
+      { name: "PWD Maharashtra", abbreviation: "PWD", sector: "Infrastructure", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Emblem_of_Maharashtra.svg/1200px-Emblem_of_Maharashtra.svg.png", website: "https://pwd.maharashtra.gov.in" },
+      { name: "Maharashtra Police", abbreviation: "MH POL", sector: "Law Enforcement", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f0/Maharashtra_Police_Logo.png/250px-Maharashtra_Police_Logo.png", website: "https://mahapolice.gov.in" },
+      { name: "NTPC", abbreviation: "NTPC", sector: "Energy", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/b/be/NTPC_Logo.svg/1200px-NTPC_Logo.svg.png", website: "https://www.ntpc.co.in" },
+      { name: "Thriveni Sainik", abbreviation: "TS", sector: "Mining/Defense", website: "https://thrivenisainik.com" },
+      { name: "DRDO", abbreviation: "DRDO", sector: "Defense Research", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/DRDO_Logo.png/1200px-DRDO_Logo.png", website: "https://www.drdo.gov.in" },
+      { name: "Ceigall India", abbreviation: "CEIGALL", sector: "Construction", website: "https://www.ceigall.com" },
+      { name: "MKC", abbreviation: "MKC", sector: "Infrastructure", website: "https://mkcinfrastructureltd.com" },
+      { name: "JSW", abbreviation: "JSW", sector: "Steel & Energy", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/JSW_Group_logo.svg/1200px-JSW_Group_logo.svg.png", website: "https://www.jsw.in" },
+      { name: "EDF France", abbreviation: "EDF", sector: "International Energy", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Electricite_de_France_logo.svg/1200px-Electricite_de_France_logo.svg.png", website: "https://www.edf.fr" },
+      { name: "Tata Group", abbreviation: "TATA", sector: "Conglomerate", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Tata_logo.svg/1200px-Tata_logo.svg.png", website: "https://www.tata.com" },
+      { name: "Dilip Buildcon Limited", abbreviation: "DBL", sector: "Infrastructure", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/DBL_Logo.png/1200px-DBL_Logo.png", website: "https://www.dilipbuildcon.com" },
+      { name: "TBRL", abbreviation: "TBRL", sector: "Defense", website: "https://www.drdo.gov.in/labs-and-establishments/terminal-ballistics-research-laboratory-tbrl" },
+      { name: "Splash Power", abbreviation: "SPLASH", sector: "Energy", website: "https://splashpower.co" },
+      { name: "Shiv Build India Pvt. Ltd.", abbreviation: "SHIV", sector: "Construction", website: "https://www.shivbuildindia.com" },
+      { name: "Fourth Dimension Group", abbreviation: "FDG", sector: "Engineering", website: "https://fdgglobal.com" },
+      { name: "Maharashtra Forest Dept", abbreviation: "MFD", sector: "Environment", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Maharashtra_Forest_Department_Logo.png/250px-Maharashtra_Forest_Department_Logo.png", website: "https://mahaforest.gov.in" },
+      { name: "Indian Army", abbreviation: "ARMY", sector: "Defense", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Indian_Army_Logo.svg/1200px-Indian_Army_Logo.svg.png", website: "https://indianarmy.nic.in" },
+    ],
+  },
+  {
+    id: "institutes",
+    name: "Educational Institutes",
+    subtitle: "COLLEGE & INSTITUTE",
+    clients: [
+      { name: "ADCET", abbreviation: "ADCET", sector: "Research & Tech", website: "https://www.adcet.ac.in" },
+      { name: "MIT University", abbreviation: "MIT", sector: "Engineering", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/5/52/MIT-WPU_logo.png/250px-MIT-WPU_logo.png", website: "https://mitwpu.edu.in" },
+      { name: "ZEAL Pune", abbreviation: "ZEAL", sector: "Technology", website: "https://www.zcoer.in" },
+      { name: "COEP", abbreviation: "COEP", sector: "Engineering", logo: "https://upload.wikimedia.org/wikipedia/en/2/2a/COEP_Logo.png", website: "https://www.coep.org.in" },
+      { name: "APCOE", abbreviation: "APCOE", sector: "Academic", website: "https://abmspcoerpune.org" },
+      { name: "DYPU", abbreviation: "DYPU", sector: "Technology", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c5/D._Y._Patil_University_Logo.png/250px-D._Y._Patil_University_Logo.png", website: "https://www.dypatil.edu" },
+      { name: "JSPM", abbreviation: "JSPM", sector: "Academic", website: "https://www.jspm.edu.in" },
+    ],
+  },
 ];
+
+export const clients = clientGroups[0].clients; // Fallback
+
