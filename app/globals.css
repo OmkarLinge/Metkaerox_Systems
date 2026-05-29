@@ -1,56 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bg: #edf2eb;
-  --bg-secondary: #dbe4d6;
-  --accent: #5f7756;
-  --highlight: #243748;
-  --text: #1c2a36;
-  --text-muted: #485867;
-  --border: rgba(36, 55, 72, 0.14);
-  --glow: 0 0 40px rgba(95, 119, 86, 0.12);
-  --card-bg: rgba(249, 251, 247, 0.92);
-  --accent-rgb: 95, 119, 86;
-  --highlight-rgb: 36, 55, 72;
-  --surface-contrast: #d2ddd0;
-  --button-contrast: #FFFFFF;
-  --panel: rgba(255, 255, 255, 0.78);
-  --panel-strong: rgba(255, 255, 255, 0.94);
-  --panel-muted: rgba(237, 242, 235, 0.82);
-  --shadow-rgb: 36, 55, 72;
-  --nav-offset: 88px;
-}
-
-.dark {
-  --bg: #09090b;
-  --bg-secondary: #18181b;
-  --accent: #f4f4f5;
-  --highlight: #d4d4d8;
-  --text: #ffffff;
-  --text-muted: #a1a1aa;
-  --border: rgba(244, 244, 245, 0.2);
-  --glow: 0 0 40px rgba(244, 244, 245, 0.15);
-  --card-bg: rgba(9, 9, 11, 0.85);
-  --accent-rgb: 244, 244, 245;
-  --highlight-rgb: 212, 212, 216;
-  --surface-contrast: #101114;
-  --button-contrast: #09090b;
-  --panel: rgba(23, 28, 37, 0.86);
-  --panel-strong: rgba(16, 19, 27, 0.96);
+  --site-font: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --bg-secondary: #101820;
+  --accent: #7cf59a;
+  --highlight: #e8edf4;
+  --text: #f8fafc;
+  --text-muted: #a8b3bf;
+  --border: rgba(124, 245, 154, 0.18);
+  --glow: 0 0 40px rgba(124, 245, 154, 0.16);
+  --card-bg: rgba(9, 14, 20, 0.86);
+  --accent-rgb: 124, 245, 154;
+  --highlight-rgb: 232, 237, 244;
+  --surface-contrast: #0b1118;
+  --button-contrast: #07100a;
+  --panel: rgba(15, 23, 32, 0.88);
+  --panel-strong: rgba(10, 16, 23, 0.96);
   --panel-muted: rgba(255, 255, 255, 0.06);
-  --shadow-rgb: 3, 8, 14;
+  --shadow-rgb: 2, 6, 12;
+  --nav-offset: 88px;
+  color-scheme: dark;
 }
 
 .dark {
   color-scheme: dark;
-}
-
-.light {
-  color-scheme: light;
 }
 
 * {
@@ -71,7 +46,7 @@ section[id] {
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--site-font);
   overflow-x: hidden;
   min-height: 100vh;
   text-rendering: optimizeLegibility;
@@ -85,8 +60,16 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   letter-spacing: 0.08em;
+}
+
+body *,
+button,
+input,
+select,
+textarea {
+  font-family: var(--site-font) !important;
 }
 
 p {
@@ -115,9 +98,9 @@ p {
 }
 
 /* ========== UTILITY CLASSES ========== */
-.font-display { font-family: 'Orbitron', sans-serif; letter-spacing: 0.08em; }
-.font-body { font-family: 'Inter', sans-serif; }
-.font-mono { font-family: 'Share Tech Mono', monospace; }
+.font-display { font-family: var(--site-font); letter-spacing: 0.08em; }
+.font-body { font-family: var(--site-font); }
+.font-mono { font-family: var(--site-font); }
 
 .text-accent { color: var(--accent); }
 .text-muted { color: var(--text-muted); }
@@ -133,12 +116,6 @@ p {
     linear-gradient(rgba(var(--accent-rgb), 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(var(--accent-rgb), 0.025) 1px, transparent 1px);
   background-size: 64px 64px;
-}
-
-.light .grid-bg {
-  background-image:
-    linear-gradient(rgba(var(--accent-rgb), 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(var(--accent-rgb), 0.04) 1px, transparent 1px);
 }
 
 /* ========== HERO PARTICLES ========== */
@@ -348,32 +325,6 @@ p {
   }
 }
 
-.light .product-stage-shell {
-  background:
-    radial-gradient(circle at 16% 16%, rgba(95, 119, 86, 0.12), transparent 28%),
-    radial-gradient(circle at 84% 14%, rgba(36, 55, 72, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(244, 248, 241, 0.98) 44%, rgba(233, 240, 231, 1) 100%);
-}
-
-.light .product-stage-aura {
-  background:
-    radial-gradient(circle, rgba(95, 119, 86, 0.15) 0%, rgba(36, 55, 72, 0.08) 42%, transparent 72%);
-}
-
-.light .product-stage-platform {
-  background:
-    radial-gradient(circle at 50% 35%, rgba(95, 119, 86, 0.16) 0%, rgba(36, 55, 72, 0.08) 34%, rgba(255,255,255,0.9) 62%, rgba(210, 221, 208, 0.94) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.9),
-    0 18px 36px rgba(36, 55, 72, 0.12),
-    0 0 40px rgba(95, 119, 86, 0.1);
-}
-
-.light .product-stage-platform-rim {
-  background:
-    linear-gradient(90deg, rgba(95, 119, 86, 0), rgba(95, 119, 86, 0.28), rgba(36, 55, 72, 0.18), rgba(36, 55, 72, 0));
-}
-
 
 .mission-circle-stage {
   position: relative;
@@ -492,10 +443,6 @@ p {
   z-index: 3;
 }
 
-.light .mission-node {
-  background: rgba(255, 255, 255, 0.9);
-}
-
 .mission-node::after {
   content: "";
   position: absolute;
@@ -510,7 +457,7 @@ p {
   top: -22px;
   left: 50%;
   transform: translateX(-50%) rotate(calc(-1 * var(--timeline-rotation, 0deg)));
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--site-font);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   color: var(--text-muted);
@@ -570,11 +517,6 @@ p {
   margin-top: 16px;
 }
 
-.light .mission-card {
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 16px 30px rgba(37, 35, 24, 0.12);
-}
-
 .mission-card-header {
   display: flex;
   flex-direction: column;
@@ -583,14 +525,14 @@ p {
 }
 
 .mission-card-year {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--site-font);
   font-size: 0.7rem;
   letter-spacing: 0.3em;
   color: var(--accent);
 }
 
 .mission-card-title {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-size: 1.4rem;
   letter-spacing: 0.08em;
   color: var(--text);
@@ -637,7 +579,7 @@ p {
 
 .mission-mobile-year {
   display: block;
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--site-font);
   font-size: 0.65rem;
   letter-spacing: 0.2em;
   color: var(--accent);
@@ -646,15 +588,11 @@ p {
 .mission-mobile-title {
   display: block;
   margin-top: 6px;
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-size: 0.9rem;
   letter-spacing: 0.08em;
   color: var(--text);
   text-transform: uppercase;
-}
-
-.light .mission-mobile-node {
-  background: rgba(255, 255, 255, 0.85);
 }
 
 /* ========== CARD STYLES ========== */
@@ -706,7 +644,7 @@ p {
 .btn-primary {
   background: linear-gradient(135deg, var(--accent), var(--highlight));
   color: var(--button-contrast);
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -738,7 +676,7 @@ p {
 .btn-outline {
   border: 1px solid var(--accent);
   color: var(--accent);
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -815,7 +753,7 @@ p {
 
 /* ========== STAT NUMBER ========== */
 .stat-number {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 900;
   background: linear-gradient(135deg, var(--accent), var(--highlight));
@@ -883,7 +821,7 @@ p {
   background: rgba(17, 24, 39, 0.8);
   border: 1px solid var(--border);
   color: var(--text);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: var(--site-font);
   font-size: 1rem;
   padding: 14px 18px;
   border-radius: 4px;
@@ -895,10 +833,6 @@ p {
 .form-input:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.1);
-}
-
-.light .form-input {
-  background: rgba(255, 255, 255, 0.9);
 }
 
 /* ========== PRODUCT MODAL ========== */
@@ -972,7 +906,7 @@ p {
 
 /* ========== SECTION LABEL ========== */
 .section-label {
-  font-family: 'Share Tech Mono', monospace;
+  font-family: var(--site-font);
   font-size: 0.75rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -1002,7 +936,7 @@ p {
 
 /* ========== HERO TEXT CLIP ========== */
 .hero-title {
-  font-family: 'Orbitron', sans-serif;
+  font-family: var(--site-font);
   font-size: clamp(2.5rem, 8vw, 7rem);
   font-weight: 900;
   line-height: 1;
@@ -1014,21 +948,6 @@ p {
 }
 
 /* ========== LIGHT MODE OVERRIDES ========== */
-.light .drone-card {
-  background: rgba(249, 251, 247, 0.96);
-  box-shadow: 0 16px 36px rgba(36, 55, 72, 0.08);
-}
-
-.light .tech-card {
-  background: linear-gradient(135deg, rgba(95, 119, 86, 0.08), rgba(36, 55, 72, 0.05));
-}
-
-.light .hero-title {
-  background: linear-gradient(135deg, #0F172A 30%, var(--accent) 70%);
-  -webkit-background-clip: text;
-  background-clip: text;
-}
-
 /* ========== PRODUCT SHOWCASE ========== */
 .product-showcase-card {
   max-width: 1140px;
@@ -1045,19 +964,6 @@ p {
   box-shadow:
     0 32px 80px rgba(var(--shadow-rgb), 0.16),
     0 12px 32px rgba(var(--shadow-rgb), 0.1);
-}
-
-.light .product-showcase-card {
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow:
-    0 20px 50px rgba(36, 55, 72, 0.08),
-    0 6px 20px rgba(36, 55, 72, 0.06);
-}
-
-.light .product-showcase-card:hover {
-  box-shadow:
-    0 28px 70px rgba(36, 55, 72, 0.12),
-    0 10px 28px rgba(36, 55, 72, 0.08);
 }
 
 @media (max-width: 1024px) {

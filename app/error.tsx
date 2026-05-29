@@ -27,7 +27,7 @@ export default function Error({
         </p>
         <h1
           className="mt-5 text-4xl font-black uppercase tracking-tight sm:text-6xl"
-          style={{ fontFamily: "'Orbitron', sans-serif", color: "var(--highlight)" }}
+          style={{ fontFamily: "var(--site-font)", color: "var(--highlight)" }}
         >
           Something interrupted the page render.
         </h1>

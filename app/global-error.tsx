@@ -43,7 +43,7 @@ export default function GlobalError({
             <h1
               style={{
                 margin: "20px 0 0",
-                fontFamily: "Orbitron, sans-serif",
+                fontFamily: "var(--site-font)",
                 fontSize: "clamp(2.4rem, 6vw, 4.8rem)",
                 lineHeight: 1,
                 textTransform: "uppercase",

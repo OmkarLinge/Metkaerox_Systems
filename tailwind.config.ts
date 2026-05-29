@@ -11,24 +11,17 @@ const config: Config = {
     extend: {
       colors: {
         dark: {
-          bg: "#0A0F1C",
-          secondary: "#111827",
-          accent: "#00E5FF",
-          highlight: "#3B82F6",
-          text: "#E5E7EB",
-        },
-        light: {
-          bg: "#F8FAFC",
-          secondary: "#FFFFFF",
-          accent: "#0077FF",
-          highlight: "#00AEEF",
-          text: "#0F172A",
+          bg: "#070B10",
+          secondary: "#101820",
+          accent: "#7CF59A",
+          highlight: "#E8EDF4",
+          text: "#F8FAFC",
         },
       },
       fontFamily: {
-        display: ["'Orbitron'", "sans-serif"],
-        body: ["'Rajdhani'", "sans-serif"],
-        mono: ["'Share Tech Mono'", "monospace"],
+        display: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       animation: {
         "float": "float 6s ease-in-out infinite",
